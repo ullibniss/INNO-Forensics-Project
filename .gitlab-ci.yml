@@ -1,0 +1,130 @@
+stages:
+  - terraform-lint
+  - terraform-plan
+  - terraform-apply
+  - mac-lint
+  - mac-build
+  - mac-deploy
+  - mac-restart
+
+variables:
+  TF_DIR: terraform/prod
+  ANSIBLE_DIR: ansible/mac_identifier
+  IMAGE_NAME: registry.ullibniss.com/mac_identifier
+  IMAGE_TAG: $CI_COMMIT_SHA
+  TF_VAR_twc_token: $TWC_TOKEN
+  VAULT_TOKEN: $VAULT_TOKEN
+  VAULT_ADDR: https://vault.ullibniss.com
+
+# ─── Terraform ───────────────────────────────────────────────────────────────
+
+terraform-lint:
+  stage: terraform-lint
+  image:
+    name: hashicorp/terraform:latest
+    entrypoint: [""]
+  script:
+    - cd $TF_DIR
+    - terraform init -backend=false
+    - terraform fmt -check -recursive
+    - terraform validate
+  rules:
+    - changes:
+        - terraform/prod/**/*
+
+terraform-plan:
+  stage: terraform-plan
+  image:
+    name: hashicorp/terraform:latest
+    entrypoint: [""]
+  script:
+    - cd $TF_DIR
+    - terraform init
+    - terraform plan -out=tfplan
+  artifacts:
+    paths:
+      - $TF_DIR/tfplan
+    expire_in: 1 hour
+  rules:
+    - changes:
+        - terraform/prod/**/*
+
+terraform-apply:
+  stage: terraform-apply
+  image:
+    name: hashicorp/terraform:latest
+    entrypoint: [""]
+  script:
+    - cd $TF_DIR
+    - terraform init
+    - terraform apply -auto-approve tfplan
+  dependencies:
+    - terraform-plan
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - terraform/prod/**/*
+      when: manual
+
+# ─── Mac Identifier ──────────────────────────────────────────────────────────
+
+mac-lint:
+  stage: mac-lint
+  image: golang:1.22.4-bullseye
+  script:
+    - cd mac_identifier
+    - go mod tidy
+    - go vet ./...
+  rules:
+    - changes:
+        - mac_identifier/**/*
+
+mac-build:
+  stage: mac-build
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - docker login registry.ullibniss.com -u $REGISTRY_USER -p $REGISTRY_PASSWORD
+  script:
+    - cd mac_identifier
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG -t $IMAGE_NAME:latest .
+    - docker push $IMAGE_NAME:$IMAGE_TAG
+    - docker push $IMAGE_NAME:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - mac_identifier/**/*
+
+mac-deploy:
+  stage: mac-deploy
+  image: cytopia/ansible:latest
+  before_script:
+    - cd $ANSIBLE_DIR
+  script:
+    - >
+      ansible-playbook deploy.yml
+      -i prod.cfg
+      --extra-vars "mac_identifier_image=$IMAGE_NAME:$IMAGE_TAG"
+  variables:
+    ANSIBLE_SSH_PASS: $ANSIBLE_SSH_PASS
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - mac_identifier/**/*
+      when: on_success
+
+mac-restart:
+  stage: mac-restart
+  image: cytopia/ansible:latest
+  before_script:
+    - cd $ANSIBLE_DIR
+  script:
+    - ansible-playbook restart.yml -i prod.cfg
+  variables:
+    ANSIBLE_SSH_PASS: $ANSIBLE_SSH_PASS
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+  when: manual
