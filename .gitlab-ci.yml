@@ -16,8 +16,6 @@ variables:
   VAULT_TOKEN: $VAULT_TOKEN
   VAULT_ADDR: https://vault.ullibniss.com
 
-# ─── Terraform ───────────────────────────────────────────────────────────────
-
 terraform-lint:
   stage: terraform-lint
   image:
@@ -65,8 +63,6 @@ terraform-apply:
       changes:
         - terraform/prod/**/*
       when: manual
-
-# ─── Mac Identifier ──────────────────────────────────────────────────────────
 
 mac-lint:
   stage: mac-lint
