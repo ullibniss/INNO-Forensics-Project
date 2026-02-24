@@ -1,0 +1,20 @@
+- name: Stop gitlab
+  command:
+    argv:
+      - "/usr/bin/docker"
+      - "compose"
+      - "down"
+    chdir: "{{ gitlab_deploy_dir }}"
+  become: true
+  ignore_errors: true
+
+- name: Start gitlab
+  command:
+    argv:
+      - "/usr/bin/docker"
+      - "compose"
+      - "up"
+      - "-d"
+      - "--force-recreate"
+    chdir: "{{ gitlab_deploy_dir }}"
+  become: true

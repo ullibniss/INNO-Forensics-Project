@@ -1,0 +1,8 @@
+---
+- hosts: [mac_identifier]
+  tasks:
+    - name: Stop mac_identifier service
+      ansible.builtin.import_role:
+        name: mac_identifier
+      vars:
+        mac_identifier_action: stop

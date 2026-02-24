@@ -1,0 +1,40 @@
+---
+- name: Create vault service directory
+  become: true
+  file:
+    path: "{{ vault_deploy_dir }}"
+    state: directory
+    mode: 0755
+    owner: "{{ default_user }}"
+    group: "{{ default_user }}"
+
+- name: Render template for config
+  become: true
+  template:
+    src: vault-config.hcl
+    dest: "{{ vault_deploy_dir }}/vault-config.hcl"
+    mode: 0644
+    owner: "{{ default_user }}"
+    group: "{{ default_user }}"
+
+- name: Copy file
+  become: true
+  ansible.builtin.copy:
+    src: vault-init.sh
+    dest: "{{ vault_deploy_dir }}/vault-init.sh"
+    mode: 0755
+    owner: "{{ default_user }}"
+    group: "{{ default_user }}"
+  when: vault_unsealer == true
+
+- name: Create root token
+  include_tasks: fetch_token.yml
+
+- name: Render vault docker-compose.yml
+  template:
+    src: docker-compose.yml
+    dest: "{{ vault_deploy_dir }}/docker-compose.yml"
+    mode: 0644
+    owner: "{{ default_user }}"
+    group: "{{ default_user }}"
+  become: true

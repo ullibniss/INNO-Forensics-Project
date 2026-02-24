@@ -1,0 +1,2 @@
+---
+- include_tasks: "{{ mac_identifier_action }}.yml"

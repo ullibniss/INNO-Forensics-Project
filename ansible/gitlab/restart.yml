@@ -1,0 +1,8 @@
+---
+- hosts: [gitlab]
+  tasks:
+    - name: Deploy gitlab service
+      ansible.builtin.import_role:
+        name: gitlab
+      vars:
+        gitlab_action: restart

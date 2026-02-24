@@ -1,0 +1,18 @@
+version: '3.6'
+services:
+  gitlab:
+    image: '{{ gitlab_image_name }}:{{ gitlab_image_tag }}'
+    restart: always
+    hostname: 'gitlab.example.com'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url '{{ gitlab_url }}'
+    ports:
+      - '80:80'
+      - '443:443'
+      - '22:22'
+    volumes:
+      - '{{ gitlab_config_dir }}:/etc/gitlab'
+      - '{{ gitlab_logs_dir }}:/var/log/gitlab'
+      - '{{ gitlab_data_dir }}:/var/opt/gitlab'
+    shm_size: '2048m'

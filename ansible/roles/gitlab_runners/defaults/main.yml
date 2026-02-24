@@ -1,0 +1,5 @@
+gitlab_runners_deploy_dir: "/home/{{ default_user }}/gitlab_runners"
+gitlab_runners_data_dir: "{{ gitlab_runners_deploy_dir }}/data"
+gitlab_runners_config_dir: "{{ gitlab_runners_deploy_dir }}/config"
+gitlab_runners_cache_dir: "{{ gitlab_runners_deploy_dir }}/cache"
+gitlab_runners_build_dir: "{{ gitlab_runners_deploy_dir }}/builds"

@@ -1,0 +1,13 @@
+services:
+  app:
+    image: ${MAC_IDENTIFIER_IMAGE:-mac_identifier:latest}
+    container_name: mac_identifier
+    restart: always
+    ports:
+      - "8000:8000"
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge

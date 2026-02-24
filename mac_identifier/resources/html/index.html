@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAC Identifier</title>
+  <link rel="stylesheet" href="/static/css/index.css">
+</head>
+<body>
+  <div class="container">
+    <h1>MAC Address Lookup</h1>
+    <form id="mac-form">
+      <input
+        type="text"
+        id="mac-input"
+        placeholder="AA:BB:CC:DD:EE:FF"
+        maxlength="17"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button type="submit">Lookup</button>
+    </form>
+    <div id="result" class="result hidden"></div>
+  </div>
+
+  <script>
+    document.getElementById('mac-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const mac = document.getElementById('mac-input').value.trim();
+      const resultEl = document.getElementById('result');
+
+      resultEl.className = 'result hidden';
+      resultEl.textContent = '';
+
+      if (!mac) return;
+
+      try {
+        const resp = await fetch('/api/lookup?mac=' + encodeURIComponent(mac));
+        const data = await resp.json();
+        if (resp.ok) {
+          resultEl.textContent = 'Vendor: ' + data.vendor;
+          resultEl.className = 'result success';
+        } else {
+          resultEl.textContent = data.error || 'Not found';
+          resultEl.className = 'result error';
+        }
+      } catch (err) {
+        resultEl.textContent = 'Request failed';
+        resultEl.className = 'result error';
+      }
+    });
+  </script>
+</body>
+</html>

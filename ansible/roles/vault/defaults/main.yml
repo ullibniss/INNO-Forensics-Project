@@ -1,0 +1,7 @@
+vault_deploy_dir: "{{ deploy_dir }}/vault"
+vault_version: "1.13.2"
+vault_internal_host: vault
+vault_host: vault.ullibniss.com
+vault_port: "8200"
+vault_unsealer: true
+vault_creds: "http://{{ vault_host }}:{{ vault_port }}"

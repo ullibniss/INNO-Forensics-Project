@@ -1,0 +1,7 @@
+gitlab_deploy_dir: "{{ deploy_dir }}/gitlab"
+gitlab_config_dir: "{{ gitlab_deploy_dir }}/config"
+gitlab_logs_dir: "{{ gitlab_deploy_dir }}/logs"
+gitlab_data_dir: "{{ gitlab_deploy_dir }}/data"
+
+gitlab_image_name: "gitlab/gitlab-ce"
+gitlab_image_tag: "17.2.9-ce.0"

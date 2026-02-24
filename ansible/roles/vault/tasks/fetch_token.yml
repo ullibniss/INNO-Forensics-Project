@@ -1,0 +1,23 @@
+---
+- name: Check if vault root token file exists
+  become: true
+  stat:
+    path: "{{ vault_deploy_dir }}/vault-root-token"
+  register: token_file
+
+- name: Read vault root token
+  become: true
+  slurp:
+    src: "{{ vault_deploy_dir }}/vault-root-token"
+  register: token_slurp
+  when: token_file.stat.exists
+
+- name: Set vault_root_token variable
+  set_fact:
+    vault_root_token: "{{ token_slurp.content | b64decode | trim }}"
+  when: token_file.stat.exists
+
+- name: Set empty vault_root_token if not yet initialized
+  set_fact:
+    vault_root_token: ""
+  when: not token_file.stat.exists

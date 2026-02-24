@@ -1,0 +1,10 @@
+- name: Start vault
+  command:
+    argv:
+      - "/usr/bin/docker"
+      - "compose"
+      - "up"
+      - "-d"
+      - "--force-recreate"
+    chdir: "{{ vault_deploy_dir }}"
+  become: true

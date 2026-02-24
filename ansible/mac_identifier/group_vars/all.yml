@@ -1,0 +1,2 @@
+default_user: ullibniss
+deploy_dir: "/home/{{ default_user }}/ullibniss"

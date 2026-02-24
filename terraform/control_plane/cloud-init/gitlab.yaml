@@ -1,0 +1,20 @@
+#cloud-config
+
+hostname: gitlab.ullibniss.com
+
+package_update: true
+packages:
+  - git
+  - htop
+  - python3
+  - pip
+  - vim
+
+ssh_pwauth: true
+
+users:
+  - name: ullibniss
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    lock_passwd: false
+    plain_text_passwd: 'ssL9ffzLgD9uAVN0fame2lA5bk4L04aQi1NskCm2'

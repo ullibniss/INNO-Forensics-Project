@@ -1,0 +1,23 @@
+---
+- name: Create directories for gitlab
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "{{ default_user }}"
+    group: "{{ default_user }}"
+  loop:
+    - "{{ gitlab_deploy_dir }}"
+    - "{{ gitlab_config_dir }}"
+    - "{{ gitlab_logs_dir }}"
+    - "{{ gitlab_data_dir }}"
+  become: true
+
+- name: Render docker-compose file
+  template:
+    src: docker-compose.yml
+    dest: "{{ gitlab_deploy_dir }}/docker-compose.yml"
+    mode: 0644
+    owner: "{{ default_user }}"
+    group: "{{ default_user }}"
+  become: true

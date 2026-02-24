@@ -1,0 +1,13 @@
+services:
+  app:
+    image: {{ mac_identifier_image }}
+    container_name: mac_identifier
+    restart: always
+    ports:
+      - "{{ mac_identifier_port }}:{{ mac_identifier_port }}"
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge

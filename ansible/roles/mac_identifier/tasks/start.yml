@@ -1,0 +1,10 @@
+- name: Start mac_identifier
+  command:
+    argv:
+      - "/usr/bin/docker"
+      - "compose"
+      - "up"
+      - "-d"
+      - "--force-recreate"
+    chdir: "{{ mac_identifier_deploy_dir }}"
+  become: true

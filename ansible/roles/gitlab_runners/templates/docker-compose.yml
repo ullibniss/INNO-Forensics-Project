@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+
+  dind:
+    image: docker:20-dind
+    restart: always
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+    command:
+      - --storage-driver=overlay2
+
+  runner:
+    restart: always
+    image: gitlab/gitlab-runner:alpine
+    depends_on:
+      - dind
+    environment:
+      - DOCKER_HOST=tcp://dind:2375
+    volumes:
+      - '{{ gitlab_runners_data_dir }}:/etc/gitlab-runner'
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - '{{ gitlab_runners_config_dir }}:/etc/gitlab-runner'
+      - '{{ gitlab_runners_cache_dir }}:/cache'
+      - '{{ gitlab_runners_builds_dir }}:/builds'
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    depends_on:
+      - dind
+    restart: 'no'
+    container_name: gitlab-runner
+    environment:
+      - CI_SERVER_URL=https://gitlab.ullibniss.com
+      - 'REGISTRATION_TOKEN=irPxo_zM9zmHWcMi5Mea'
+    command:
+      - register
+      - --non-interactive
+      - --locked=false
+      - --name=mephi-devops-runner
+      - --executor=docker
+      - --docker-image=docker:20-dind
+      - --docker-volumes=/var/run/docker.sock:/var/run/docker.sock
+    volumes:
+      - '{{ gitlab_runners_config_dir }}:/etc/gitlab-runner'
